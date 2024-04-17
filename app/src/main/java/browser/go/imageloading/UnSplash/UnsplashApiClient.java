@@ -32,7 +32,7 @@ public class UnsplashApiClient {
             @Override
             public void run() {
                 try {
-                    URL url = new URL(BASE_URL + "?client_id=" + ACCESS_KEY);
+                    URL url = new URL(BASE_URL + "?page=1&per_page=30&client_id=" + ACCESS_KEY);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.connect();

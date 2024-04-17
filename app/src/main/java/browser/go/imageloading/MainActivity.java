@@ -7,6 +7,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
@@ -25,17 +27,17 @@ import browser.go.imageloading.UnSplash.UnsplashApiClient;
 
 public class MainActivity extends AppCompatActivity {
 
-    ListView list;
+    RecyclerView list;
     LazyAdapter adapter;
 
-    private static final int STORAGE_PERMISSION_CODE = 23;
+    private static final int STORAGE_PERMISSION_CODE = 100;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        list=(ListView)findViewById(R.id.listView1);
+        list=(RecyclerView) findViewById(R.id.listView1);
 
 
         if(!checkStoragePermissions())
@@ -59,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
 
                         // Stuff that updates the UI
                         adapter=new LazyAdapter(MainActivity.this, imageUrls);
+                        list.setAdapter(adapter);
+
+                        // setting grid layout manager to implement grid view.
+                        // in this method '2' represents number of columns to be displayed in grid view.
+                        GridLayoutManager layoutManager=new GridLayoutManager(MainActivity.this,2);
+
+                        // at last set adapter to recycler view.
+                        list.setLayoutManager(layoutManager);
                         list.setAdapter(adapter);
                     }
                 });
