@@ -14,19 +14,22 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import browser.go.imageloading.ImageLoader;
 import browser.go.imageloading.R;
 
 public class LazyAdapter extends RecyclerView.Adapter<LazyAdapter.RecyclerViewHolder> {
 
     private Activity activity;
-    private String[] data;
+    private List<String> data;
     private static LayoutInflater inflater=null;
     public ImageLoader imageLoader;
 
-    public LazyAdapter(Activity a, String[] d) {
+    public LazyAdapter(Activity a, List<String> d) {
         activity = a;
-        data=d;
+        data = d;
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         imageLoader=new ImageLoader(activity.getApplicationContext());
     }
@@ -49,7 +52,7 @@ public class LazyAdapter extends RecyclerView.Adapter<LazyAdapter.RecyclerViewHo
     @Override
     public void onBindViewHolder(@NonNull LazyAdapter.RecyclerViewHolder holder, int position) {
         //holder.courseTV.setText("item "+position);
-        imageLoader.DisplayImage(data[position], holder.courseIV);
+        imageLoader.DisplayImage(data.get(position), holder.courseIV);
     }
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder {
@@ -70,7 +73,7 @@ public class LazyAdapter extends RecyclerView.Adapter<LazyAdapter.RecyclerViewHo
 
     @Override
     public int getItemCount() {
-        return data.length;
+        return data.size();
     }
 /*
     public View getView(int position, View convertView, ViewGroup parent) {

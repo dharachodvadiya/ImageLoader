@@ -26,13 +26,13 @@ public class UnsplashApiClient {
         void onError(String errorMessage);
     }
 
-    public static void fetchImages(final OnDataFetchedListener listener) {
+    public static void fetchImages(int pageNo, final OnDataFetchedListener listener) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    URL url = new URL(BASE_URL + "?page=1&per_page=30&client_id=" + ACCESS_KEY);
+                    URL url = new URL(BASE_URL + "?page=" + pageNo + "&per_page=30&client_id=" + ACCESS_KEY);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.connect();

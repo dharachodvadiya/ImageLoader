@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,16 +20,27 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import browser.go.imageloading.Adapter.LazyAdapter;
+import browser.go.imageloading.Listener.EndlessRecyclerViewScrollListener;
 import browser.go.imageloading.UnSplash.UnsplashApiClient;
 
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView list;
     LazyAdapter adapter;
+    ProgressBar progressBar;
+    List<String> images = new ArrayList<>();
+
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     private static final int STORAGE_PERMISSION_CODE = 100;
 
@@ -38,19 +50,39 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         list=(RecyclerView) findViewById(R.id.listView1);
+        progressBar = findViewById(R.id.progressBar);
 
 
         if(!checkStoragePermissions())
         {
             requestForStoragePermissions();
         }else {
-            loadImages();
+            loadNextDataFromApi(0);
         }
+        GridLayoutManager layoutManager=new GridLayoutManager(MainActivity.this,2);
+
+        // at last set adapter to recycler view.
+        list.setLayoutManager(layoutManager);
+        //GridLayoutManager layoutManager=new GridLayoutManager(MainActivity.this,2);
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                loadNextDataFromApi(page);
+                Log.d("aaaa", "page Count = " + page);
+                //Toast.makeText(MainActivity.this, page+".." , Toast.LENGTH_LONG).show();
+            }
+        };
+        adapter=new LazyAdapter(MainActivity.this, images);
+        list.setAdapter(adapter);
+        list.addOnScrollListener(scrollListener);
     }
 
-    void  loadImages()
+    void  loadNextDataFromApi(int pageNo)
     {
-        UnsplashApiClient.fetchImages(new UnsplashApiClient.OnDataFetchedListener() {
+        showProgressView();
+        UnsplashApiClient.fetchImages(pageNo,new UnsplashApiClient.OnDataFetchedListener() {
             @Override
             public void onDataFetched(String[] imageUrls) {
 
@@ -59,26 +91,27 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                        // Stuff that updates the UI
-                        adapter=new LazyAdapter(MainActivity.this, imageUrls);
-                        list.setAdapter(adapter);
-
-                        // setting grid layout manager to implement grid view.
-                        // in this method '2' represents number of columns to be displayed in grid view.
-                        GridLayoutManager layoutManager=new GridLayoutManager(MainActivity.this,2);
-
-                        // at last set adapter to recycler view.
-                        list.setLayoutManager(layoutManager);
-                        list.setAdapter(adapter);
+                        images.addAll(Arrays.asList(imageUrls));
+                        hideProgressView();
+                        adapter.notifyDataSetChanged();
                     }
                 });
             }
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(MainActivity.this, "aaa " + errorMessage , Toast.LENGTH_SHORT).show();
+                Log.d("aaaa", "Error " + errorMessage);
+                //Toast.makeText(MainActivity.this, "Error " + errorMessage , Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    void showProgressView() {
+        //progressBar.setVisibility(View.VISIBLE);
+    }
+
+    void hideProgressView() {
+       // progressBar.setVisibility(View.GONE);
     }
 
     private ActivityResultLauncher<Intent> storageActivityResultLauncher =
@@ -92,13 +125,13 @@ public class MainActivity extends AppCompatActivity {
                                 if(Environment.isExternalStorageManager()){
                                     //Manage External Storage Permissions Granted
                                     Log.d("TAG", "onActivityResult: Manage External Storage Permissions Granted");
-                                    loadImages();
+                                    loadNextDataFromApi(0);
                                 }else{
                                     Toast.makeText(MainActivity.this, "Storage Permissions Denied", Toast.LENGTH_SHORT).show();
                                 }
                             }else{
                                 //Below android 11
-                                loadImages();
+                                loadNextDataFromApi(0);
 
                             }
                         }
@@ -151,10 +184,4 @@ public class MainActivity extends AppCompatActivity {
         list.setAdapter(null);
         super.onDestroy();
     }
-
-    private String imageUrls[] = {
-            "https://images.unsplash.com/photo-1712847331865-f11e31be73cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1OTE3ODV8MXwxfGFsbHwxfHx8fHx8Mnx8MTcxMzM3Nzk5OHw&ixlib=rb-4.0.3&q=80&w=1080",
-            "https://images.unsplash.com/photo-1713189005053-e38b1b88ac4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1OTE3ODV8MHwxfGFsbHwyfHx8fHx8Mnx8MTcxMzM3Nzk5OHw&ixlib=rb-4.0.3&q=80&w=1080"
-
-    };
 }
