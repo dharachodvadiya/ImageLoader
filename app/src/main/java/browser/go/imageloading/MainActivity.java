@@ -12,7 +12,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -33,9 +35,10 @@ import java.util.List;
 
 import browser.go.imageloading.Adapter.LazyAdapter;
 import browser.go.imageloading.Listener.EndlessRecyclerViewScrollListener;
+import browser.go.imageloading.Receiver.NetworkChangeReceiver;
 import browser.go.imageloading.UnSplash.UnsplashApiClient;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NetworkChangeReceiver.NetworkStateReceiverListener {
 
     RecyclerView list;
     LazyAdapter adapter;
@@ -51,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int STORAGE_PERMISSION_CODE = 100;
 
+    private NetworkChangeReceiver networkStateReceiver;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         layoutError = findViewById(R.id.layoutError);
         txtRetry = findViewById(R.id.txtRetry);
+
+        startNetworkBroadcastReceiver(this);
 
 
         if(!checkStoragePermissions())
@@ -103,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
     void  loadNextDataFromApi(int pageNo)
     {
-
+        Log.i("aaa", "Load page.." + pageNo);
        // showProgressView();
         UnsplashApiClient.fetchImages(pageNo,new UnsplashApiClient.OnDataFetchedListener() {
             @Override
@@ -129,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         showErrorLayout();
-                        Toast.makeText(MainActivity.this, "No Network.." + errorToLoadPage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Couldn't load..", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -156,8 +163,6 @@ public class MainActivity extends AppCompatActivity {
         layoutError.setVisibility(View.GONE);
         isNetworkAvailable = true;
     }
-
-
 
     private ActivityResultLauncher<Intent> storageActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -224,9 +229,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        unregisterNetworkBroadcastReceiver(this);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        registerNetworkBroadcastReceiver(this);
+        super.onResume();
+    }
+
+    @Override
     public void onDestroy()
     {
         list.setAdapter(null);
+        unregisterNetworkBroadcastReceiver(this);
         super.onDestroy();
+    }
+
+    @Override
+    public void networkAvailable() {
+        //Log.i(TAG, "networkAvailable()");
+        if(!isNetworkAvailable)
+            loadNextDataFromApi(errorToLoadPage);
+    }
+
+    @Override
+    public void networkUnavailable() {
+        //Log.i(TAG, "networkUnavailable()");
+
+    }
+
+    public void startNetworkBroadcastReceiver(Context currentContext) {
+        networkStateReceiver = new NetworkChangeReceiver();
+        networkStateReceiver.addListener((NetworkChangeReceiver.NetworkStateReceiverListener) currentContext);
+        registerNetworkBroadcastReceiver(currentContext);
+    }
+
+    public void registerNetworkBroadcastReceiver(Context currentContext) {
+        currentContext.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    public void unregisterNetworkBroadcastReceiver(Context currentContext) {
+        currentContext.unregisterReceiver(networkStateReceiver);
     }
 }

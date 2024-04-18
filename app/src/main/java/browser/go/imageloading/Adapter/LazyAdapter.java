@@ -57,12 +57,12 @@ public class LazyAdapter extends RecyclerView.Adapter<LazyAdapter.RecyclerViewHo
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView courseTV;
+        //private TextView courseTV;
         private ImageView courseIV;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
-            courseTV = itemView.findViewById(R.id.text);
+           // courseTV = itemView.findViewById(R.id.text);
             courseIV = itemView.findViewById(R.id.image);
         }
     }

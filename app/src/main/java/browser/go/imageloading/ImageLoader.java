@@ -35,7 +35,7 @@ public class ImageLoader {
         executorService= Executors.newFixedThreadPool(5);
     }
 
-    final int stub_id=R.mipmap.ic_launcher;
+    //final int stub_id=R.mipmap.ic_launcher;
     public void DisplayImage(String url, ImageView imageView)
     {
         imageViews.put(imageView, url);
@@ -46,7 +46,7 @@ public class ImageLoader {
         else
         {
             queuePhoto(url, imageView);
-            imageView.setImageResource(stub_id);
+            //imageView.setImageResource(stub_id);
         }
     }
 
@@ -176,7 +176,7 @@ public class ImageLoader {
             }
             else
             {
-                photoToLoad.imageView.setImageResource(stub_id);
+                //photoToLoad.imageView.setImageResource(stub_id);
             }
 
         }
