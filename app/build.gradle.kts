@@ -1,3 +1,12 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+// Read the properties from local.properties file
+val localProperties = Properties().apply {
+    load(FileInputStream("local.properties"))
+}
+
+
 plugins {
     id("com.android.application")
 }
@@ -5,6 +14,7 @@ plugins {
 android {
     namespace = "browser.go.imageloading"
     compileSdk = 34
+
 
     defaultConfig {
         applicationId = "browser.go.imageloading"
@@ -14,6 +24,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField ("String" , "ACCESS_KEY" ,  localProperties.getProperty("ACCESS_KEY"))
     }
 
     buildTypes {
@@ -28,6 +39,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        //…
+        buildConfig = true
     }
 }
 

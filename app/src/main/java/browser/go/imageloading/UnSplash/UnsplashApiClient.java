@@ -14,11 +14,13 @@ import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import browser.go.imageloading.BuildConfig;
+
 public class UnsplashApiClient {
 
     private static final String TAG = UnsplashApiClient.class.getSimpleName();
 
-    private static final String ACCESS_KEY = "Bsc_4PsXxQCIiBObwLgF0LGmChGK2OvL0NdnudK8EH8";
+    private static final String ACCESS_KEY = BuildConfig.ACCESS_KEY;
     private static final String BASE_URL = "https://api.unsplash.com/photos/";
 
     public interface OnDataFetchedListener {

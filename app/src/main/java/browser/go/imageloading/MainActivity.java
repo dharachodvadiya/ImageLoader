@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NetworkChangeRece
 
     void  loadNextDataFromApi(int pageNo)
     {
-        Log.i("aaa", "Load page.." + pageNo);
+        //Log.i("aaa", "Load page.." + pageNo);
        // showProgressView();
         UnsplashApiClient.fetchImages(pageNo,new UnsplashApiClient.OnDataFetchedListener() {
             @Override
