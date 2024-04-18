@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -39,8 +41,13 @@ public class MainActivity extends AppCompatActivity {
     LazyAdapter adapter;
     ProgressBar progressBar;
     List<String> images = new ArrayList<>();
+    RelativeLayout layoutError;
+    TextView txtRetry;
+
+    boolean isNetworkAvailable = true;
 
     private EndlessRecyclerViewScrollListener scrollListener;
+    int errorToLoadPage = 0;
 
     private static final int STORAGE_PERMISSION_CODE = 100;
 
@@ -51,13 +58,15 @@ public class MainActivity extends AppCompatActivity {
 
         list=(RecyclerView) findViewById(R.id.listView1);
         progressBar = findViewById(R.id.progressBar);
+        layoutError = findViewById(R.id.layoutError);
+        txtRetry = findViewById(R.id.txtRetry);
 
 
         if(!checkStoragePermissions())
         {
             requestForStoragePermissions();
         }else {
-            loadNextDataFromApi(0);
+            loadNextDataFromApi(1);
         }
         GridLayoutManager layoutManager=new GridLayoutManager(MainActivity.this,2);
 
@@ -69,23 +78,33 @@ public class MainActivity extends AppCompatActivity {
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
-                loadNextDataFromApi(page);
+                loadNextDataFromApi(page +1);
                 Log.d("aaaa", "page Count = " + page);
                 //Toast.makeText(MainActivity.this, page+".." , Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onScrollEnd(int pos) {
-                showProgressView();
+
+                if(isNetworkAvailable)
+                    showProgressView();
             }
         };
         adapter=new LazyAdapter(MainActivity.this, images);
         list.setAdapter(adapter);
         list.addOnScrollListener(scrollListener);
+
+        txtRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              loadNextDataFromApi(errorToLoadPage);
+            }
+        });
     }
 
     void  loadNextDataFromApi(int pageNo)
     {
+
        // showProgressView();
         UnsplashApiClient.fetchImages(pageNo,new UnsplashApiClient.OnDataFetchedListener() {
             @Override
@@ -97,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
 
                         images.addAll(Arrays.asList(imageUrls));
+                        hideErrorLayout();
                         hideProgressView();
                         adapter.notifyDataSetChanged();
                     }
@@ -104,20 +124,42 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errorMessage) {
+            public void onError(String errorMessage, int pageNo) {
+                errorToLoadPage = pageNo;
                 Log.d("aaaa", "Error " + errorMessage);
-                //Toast.makeText(MainActivity.this, "Error " + errorMessage , Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showErrorLayout();
+                        Toast.makeText(MainActivity.this, "No Network.." + errorToLoadPage, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         });
     }
 
     void showProgressView() {
+        hideErrorLayout();
         progressBar.setVisibility(View.VISIBLE);
     }
 
     void hideProgressView() {
         progressBar.setVisibility(View.GONE);
     }
+
+    void showErrorLayout() {
+        hideProgressView();
+        layoutError.setVisibility(View.VISIBLE);
+        isNetworkAvailable = false;
+    }
+
+    void hideErrorLayout() {
+        layoutError.setVisibility(View.GONE);
+        isNetworkAvailable = true;
+    }
+
+
 
     private ActivityResultLauncher<Intent> storageActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -130,13 +172,13 @@ public class MainActivity extends AppCompatActivity {
                                 if(Environment.isExternalStorageManager()){
                                     //Manage External Storage Permissions Granted
                                     Log.d("TAG", "onActivityResult: Manage External Storage Permissions Granted");
-                                    loadNextDataFromApi(0);
+                                    loadNextDataFromApi(1);
                                 }else{
                                     Toast.makeText(MainActivity.this, "Storage Permissions Denied", Toast.LENGTH_SHORT).show();
                                 }
                             }else{
                                 //Below android 11
-                                loadNextDataFromApi(0);
+                                loadNextDataFromApi(1);
 
                             }
                         }

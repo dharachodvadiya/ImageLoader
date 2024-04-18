@@ -23,7 +23,7 @@ public class UnsplashApiClient {
 
     public interface OnDataFetchedListener {
         void onDataFetched(String[] imageUrls);
-        void onError(String errorMessage);
+        void onError(String errorMessage, int pageNo);
     }
 
     public static void fetchImages(int pageNo, final OnDataFetchedListener listener) {
@@ -54,9 +54,9 @@ public class UnsplashApiClient {
                         imageUrls[i] = imageUrl;
                     }
                     listener.onDataFetched(imageUrls);
-                } catch (IOException | JSONException e) {
+                } catch (Exception e) {
                     Log.e(TAG, "Error fetching images: " + e.getMessage());
-                    listener.onError("Failed to fetch images. Please check your internet connection.");
+                    listener.onError("Failed to fetch images. Please check your internet connection.", pageNo);
                 }
             }
         });
