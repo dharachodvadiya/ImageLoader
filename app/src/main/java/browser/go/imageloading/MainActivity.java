@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
                 loadNextDataFromApi(page +1);
-                Log.d("aaaa", "page Count = " + page);
                 //Toast.makeText(MainActivity.this, page+".." , Toast.LENGTH_LONG).show();
             }
 
@@ -126,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(String errorMessage, int pageNo) {
                 errorToLoadPage = pageNo;
-                Log.d("aaaa", "Error " + errorMessage);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
