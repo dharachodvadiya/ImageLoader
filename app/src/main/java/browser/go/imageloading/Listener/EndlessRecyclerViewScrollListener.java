@@ -91,6 +91,11 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
             onLoadMore(currentPage, totalItemCount, view);
             loading = true;
         }
+
+        if((lastVisibleItemPosition == totalItemCount -1))
+        {
+            onScrollEnd(lastVisibleItemPosition);
+        }
     }
 
     // Call this method whenever performing new searches
@@ -102,5 +107,6 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
 
     // Defines the process for actually loading more data based on page
     public abstract void onLoadMore(int page, int totalItemsCount, RecyclerView view);
+    public abstract void onScrollEnd(int pos);
 
 }

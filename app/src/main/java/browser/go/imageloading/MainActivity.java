@@ -73,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("aaaa", "page Count = " + page);
                 //Toast.makeText(MainActivity.this, page+".." , Toast.LENGTH_LONG).show();
             }
+
+            @Override
+            public void onScrollEnd(int pos) {
+                showProgressView();
+            }
         };
         adapter=new LazyAdapter(MainActivity.this, images);
         list.setAdapter(adapter);
@@ -81,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
     void  loadNextDataFromApi(int pageNo)
     {
-        showProgressView();
+       // showProgressView();
         UnsplashApiClient.fetchImages(pageNo,new UnsplashApiClient.OnDataFetchedListener() {
             @Override
             public void onDataFetched(String[] imageUrls) {
@@ -107,11 +112,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void showProgressView() {
-        //progressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     void hideProgressView() {
-       // progressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
     }
 
     private ActivityResultLauncher<Intent> storageActivityResultLauncher =
