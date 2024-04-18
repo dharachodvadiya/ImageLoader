@@ -18,7 +18,7 @@ To run the project locally, follow these steps:
 2. **Add Access Key to local.properties**: Open the `local.properties` file in the root directory of the project. Add the following line to the file, replacing `YOUR_UNSPLASH_ACCESS_KEY` with your actual Unsplash access key:
 
     ```
-    ACCESS_KEY=YOUR_UNSPLASH_ACCESS_KEY
+    ACCESS_KEY="YOUR_UNSPLASH_ACCESS_KEY"
     ```
 
 3. **Build and Run**: Open the project in Android Studio and build/run the application on your device or emulator.
